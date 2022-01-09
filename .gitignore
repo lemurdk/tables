@@ -5,3 +5,4 @@ local.properties
 *.iml
 tables_app/fabric.properties
 odkanalytics/
+tables_app/demoBasic
