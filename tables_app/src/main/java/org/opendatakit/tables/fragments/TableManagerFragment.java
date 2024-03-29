@@ -231,7 +231,7 @@ public class TableManagerFragment extends ListFragment implements DatabaseConnec
 
     if (itemId == R.id.table_manager_delete_table) {
       AlertDialog confirmDeleteAlert;
-      MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(this.getActivity());
+      MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(this.getActivity(), R.style.OdkXAlertDialogStyle);
       alert.setTitle(getString(R.string.confirm_remove_table))
               .setMessage(getString(R.string.are_you_sure_remove_table, localizedDisplayName));
       alert.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
