@@ -138,7 +138,7 @@ dependencies {
     if (commonProjectPath.exists() && gradle.useLocal) { // Local project is favoured
         implementation project(commonProjectName)
     } else {
-        pirmaryImplementation(group: odkxGroupId, name: commonPackageName, version: primaryVersion)
+        primaryImplementation(group: odkxGroupId, name: commonPackageName, version: primaryVersion)
         snapshotImplementation(group: odkxGroupId, name: commonPackageName, version: snapshotVersion);
     }
 
