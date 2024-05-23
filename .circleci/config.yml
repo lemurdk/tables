@@ -169,24 +169,26 @@ commands:
               filename=$(basename $artifact_url)
               curl -sSL -o $filename $artifact_url
             done
+
   push-appdesigner-files-to-device:
     description: Clone and push the necessary ODK-X App Designer files to the emulator prior to testing Tables
     steps:
       - node/install
       - run:
-          name: Install grunt
+          name: Install Grunt
           command: |
             npm install -g grunt-cli
             grunt --version
       - run:
           name: clone app designer repository to environment
           command: |
-            git clone -b "$CIRCLE_BRANCH" "https://github.com/$GITHUB_ACTOR/app-designer.git"
+            # should replace main with CIRCLE_BRANCH env var
+            git clone -b "main" "https://github.com/$GITHUB_ACTOR/app-designer.git"
             ls -d */
             cd app-designer/
             ls -d */
             npm install grunt --save-dev
-            # echo "git clone -b "$CIRCLE_BRANCH" "https://$GITHUB_TOKEN@github.com/$GITHUB_ACTOR/app-designer.git""
+
       - run:
           name: Push Files to Emulator
           command: |
@@ -198,21 +200,25 @@ commands:
 
 
 orbs:
-  android: circleci/android@2.4.0
-  node: circleci/node@5.1.0
+  android: circleci/android@2.5.0
+  node: circleci/node@5.2.0
 jobs:
   test:
     description: Runs unit tests and instrumented tests on the Tables app
     executor:
       name: android/android-machine
-      resource-class: large #change to xlarge when merging to odkx
+      resource-class: xlarge
       tag: 2024.01.1
-
+    
+    working_directory: ~/project
     steps:
       - checkout
       - run:
           name: Chmod Permissions
           command: sudo chmod +x gradlew
+
+      - attach_workspace:
+          at: ~/project
 
       - get-artifacts:
           description: Get artifacts from the 'Services' repository
@@ -237,13 +243,16 @@ jobs:
       - android/start-emulator:
           avd-name: avd
           no-window: true
-          post-emulator-launch-assemble-command: ./gradlew installSnapshotDebug
-
+          post-emulator-launch-assemble-command: ""
 
       # Runs command to push the ODK-X App Designer files to the emulator
       - push-appdesigner-files-to-device
 
       # Install Dependencies to emulator
+      - run:
+          name: Install 'Tables' app on emulator
+          command: ./gradlew installSnapshotDebug
+
       - run:
           name: Install 'Services' app from downloaded artifacts to emulator
           command: |
@@ -259,17 +268,9 @@ jobs:
             adb install survey_app-snapshot-debug.apk
             adb shell pm list packages
 
-      - run:
-          name: Run UI tests on Tables
-          command: |
-            
-            # Run your tests            
-            ./gradlew grantPermissionForODKApp connectedSnapshotDebugAndroidTest --info
-            
-
-      # - android/run-tests:
-      #     test-command: ./gradlew grantPermissionForODKApp connectedDemoUitestDebugAndroidTest --info
-      #     max-tries: 1
+      - android/run-tests:
+          test-command: ./gradlew grantPermissionForODKApp connectedSnapshotDebugAndroidTest --info
+          max-tries: 1
 
       - store_artifacts:
           name: Store Test Results
@@ -301,13 +302,16 @@ jobs:
           name: Store Build Artifacts
           path: tables_app/build/outputs/apk
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - tables_app/build/outputs/apk/
+
 
 workflows:
   build-test-workflow:
     jobs:
-      - test
       - build
-      # - build
-      # # - test:
-      #     requires:
-      #       - build
+      - test:
+          requires:
+            - build
