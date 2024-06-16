@@ -73,6 +73,7 @@ android {
         release {
             minifyEnabled(minify)
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.debug
 
             if (shouldSign) {
                 signingConfig signingConfigs.release

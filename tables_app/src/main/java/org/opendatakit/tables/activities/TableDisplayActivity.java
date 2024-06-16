@@ -280,7 +280,7 @@ public class TableDisplayActivity extends AbsBaseWebActivity
 
     this.setContentView(R.layout.activity_table_display_activity);
 
-    requestLocationPermission();
+    requestLocationAndCameraPermission();
   }
 
   /**
@@ -1385,7 +1385,7 @@ public class TableDisplayActivity extends AbsBaseWebActivity
     }
   }
 
-  private void requestLocationPermission() {
+  private void requestLocationAndCameraPermission() {
     // only check for fine location
     // but request coarse and fine in case we can only get coarse
     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -1394,7 +1394,9 @@ public class TableDisplayActivity extends AbsBaseWebActivity
               this,
               new String[] {
                       Manifest.permission.ACCESS_FINE_LOCATION,
-                      Manifest.permission.ACCESS_COARSE_LOCATION
+                      Manifest.permission.ACCESS_COARSE_LOCATION,
+                      Manifest.permission.CAMERA,
+                      Manifest.permission.RECORD_AUDIO
               },
               LOCATION_PERM_REQ_CODE
       );
